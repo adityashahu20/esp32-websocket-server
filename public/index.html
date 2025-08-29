@@ -1,18 +1,32 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>ESP32 Live Data</title>
-  </head>
-  <body>
-    <h1>ESP32 Live Feed</h1>
-    <div id="log"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 WebSocket Test</title>
+</head>
+<body>
+  <h2>ESP32 WebSocket Messages</h2>
+  <div id="log"></div>
 
-    <script>
-      const ws = new WebSocket(`wss://${window.location.host}`);
-      ws.onmessage = (event) => {
-        const div = document.getElementById("log");
-        div.innerHTML += `<p>${event.data}</p>`;
-      };
-    </script>
-  </body>
+  <script>
+    // connect to same origin as the server
+    const ws = new WebSocket(`wss://${window.location.host}`);
+
+    ws.onopen = () => {
+      console.log("✅ Connected to WebSocket");
+      document.getElementById("log").innerHTML += "<p>Connected ✅</p>";
+    };
+
+    ws.onmessage = (event) => {
+      console.log("📩 Message:", event.data);
+      document.getElementById("log").innerHTML += `<p>${event.data}</p>`;
+    };
+
+    ws.onclose = () => {
+      console.log("❌ Disconnected");
+      document.getElementById("log").innerHTML += "<p>Disconnected ❌</p>";
+    };
+  </script>
+</body>
 </html>
+
