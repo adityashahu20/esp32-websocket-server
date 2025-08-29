@@ -9,21 +9,32 @@ const wss = new WebSocket.Server({ server });
 
 app.use(express.static(path.join(__dirname, "public")));
 
+// ✅ store messages in memory
+let history = [];
+
 wss.on("connection", ws => {
-  console.log("✅ ESP32 connected");
+  console.log("✅ Client connected");
+
+  // send old messages to the new client
+  history.forEach(msg => {
+    ws.send(msg);
+  });
 
   ws.on("message", msg => {
-    console.log("📩 ESP32 says:", msg.toString());
+    console.log("📩 ESP32/browser says:", msg.toString());
 
-    // broadcast to all browser clients
+    // add message to history
+    history.push(msg.toString());
+
+    // broadcast to everyone (including browsers)
     wss.clients.forEach(client => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
+      if (client.readyState === WebSocket.OPEN) {
         client.send(msg.toString());
       }
     });
   });
 
-  ws.on("close", () => console.log("❌ ESP32 disconnected"));
+  ws.on("close", () => console.log("❌ Client disconnected"));
 });
 
 const PORT = process.env.PORT || 3000;
