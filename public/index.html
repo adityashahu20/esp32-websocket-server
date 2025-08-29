@@ -1,32 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>ESP32 WebSocket Test</title>
+  <title>ESP32 WebSocket Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #log { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; }
+  </style>
 </head>
 <body>
-  <h2>ESP32 WebSocket Messages</h2>
+  <h2>ESP32 WebSocket Live Feed</h2>
   <div id="log"></div>
 
   <script>
-    // connect to same origin as the server
     const ws = new WebSocket(`wss://${window.location.host}`);
+    const log = document.getElementById("log");
 
-    ws.onopen = () => {
-      console.log("✅ Connected to WebSocket");
-      document.getElementById("log").innerHTML += "<p>Connected ✅</p>";
-    };
+    function addMessage(msg) {
+      const p = document.createElement("p");
+      p.textContent = msg;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
 
-    ws.onmessage = (event) => {
-      console.log("📩 Message:", event.data);
-      document.getElementById("log").innerHTML += `<p>${event.data}</p>`;
-    };
-
-    ws.onclose = () => {
-      console.log("❌ Disconnected");
-      document.getElementById("log").innerHTML += "<p>Disconnected ❌</p>";
-    };
+    ws.onopen = () => addMessage("✅ Connected to WebSocket");
+    ws.onmessage = (event) => addMessage("📩 " + event.data);
+    ws.onclose = () => addMessage("❌ Disconnected");
   </script>
 </body>
 </html>
-
